@@ -1,0 +1,17 @@
+experiment_name: na_waveform_baseline
+status: template_not_trained
+dataset_manifest: manifests/datasets.csv
+target: neurotransmitter_phenotype
+seed: 42
+feature_groups:
+  waveform: true
+  firing_burst: false
+  global_temporal: false
+  stability: false
+normalization: trough
+split:
+  strategy: group_by_animal
+  test_fraction: 0.2
+model:
+  type: random_forest
+  n_estimators: 300
