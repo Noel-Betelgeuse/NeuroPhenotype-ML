@@ -1,11 +1,22 @@
-# Google Colab guide (private repository)
+# Secure Colab workflow (private repository)
 
-1. In Colab choose **File → Open notebook → GitHub**; sign in/authorize GitHub to access private repositories and select `notebooks/00_environment_check.ipynb`.
-2. Execute the notebook cells for CPU/GPU availability and mount Google Drive.
-3. The actual Python package is **not installed** merely by opening the notebook. For the first phase inspect code in GitHub and execute tests via a local clone or a properly authenticated runtime clone.
-4. Never put a GitHub access token directly in a notebook, notebook output, URL, or committed file. Use a scoped secret/credential helper if cloning a private repository in Colab.
-5. Runtime storage is ephemeral. Data should be staged locally for intensive reads, then validated outputs transferred to Drive.
-6. Do not claim Colab has a GPU until the notebook reports one. Hardware availability varies.
-7. Cloud GPU providers must use the same tagged source commit, dataset manifest and experiment config.
+## First run
 
-Next integration milestone: create a safe private-repo clone/bootstrap and run logging helper, then validate it on a real Colab instance.
+1. Open `notebooks/01_colab_bootstrap.ipynb` from GitHub inside Colab.
+2. Make a GitHub **fine-grained personal access token** restricted to the single private repository, permission **Contents: Read-only**.
+3. In Colab, open **Secrets** (key icon), add `GITHUB_TOKEN`, turn on notebook access. Never paste the token into notebook code, outputs, Drive docs, URLs or Issues.
+4. Execute the cells sequentially. The notebook fetches an immutable GitHub commit archive, installs its local package, mounts Drive, confirms the existing `NeuroPhenotype-ML` folder, computes synthetic checks, and saves `run.json` under `04_EXPERIMENTS/RUNS/<run_id>/`.
+5. If Drive folder is missing, **stop and inspect** which Google account is mounted; do not automatically create a duplicate.
+6. Remove or revoke token if compromised. Use a dedicated minimal token with an expiry.
+
+## What is and is not automatic
+
+- GitHub Actions tests run automatically on push.
+- Colab code runs only when the user executes it (or a separately configured job triggers it); Colab free sessions are not a reliable background scheduler.
+- The bootstrap logs a synthetic smoke test, **not a validated phenotype classifier or real training run**.
+- No secrets or biological raw data are stored in the GitHub repository.
+- A Google Drive folder with link-wide write access is unsafe; restrict sharing before loading real lab data.
+
+## External GPU portability
+
+The Python package and YAML configs are platform-neutral. A future batch entrypoint will accept a config + dataset manifest and produce an immutable run ID, metrics and artifacts. This must be validated before claiming Runpod integration works.
